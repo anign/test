@@ -1,8 +1,8 @@
 #define pinStep 9
 #define pinDir 10
-#define pinEna 11
+#define pinEnable 11
 
-#define pinPotentio A1 // потенциометр
+#define pinPot A1 // потенциометр
 
 #define pinBtnDown 2 // кнопка "меньше"
 #define pinBtnUp 3 // кнопка "больше"
@@ -11,7 +11,6 @@
 #define steps 1000 // Кол-во шагов двигателя  
 #define rampStep 0,1 // шаг изменения рампы
 
-  // Флаги состояния кнопок
 
 void setup(){   
   pinMode(13, OUTPUT); // для отладки
@@ -19,17 +18,36 @@ void setup(){
   Serial.begin(9600);
   pinMode(pinStep, OUTPUT);                    
   pinMode(pinDir, OUTPUT);  
-  pinMode(pinEna, OUTPUT);    
-  pinMode(pinPotentio, INPUT);   
+  pinMode(pinEnable, OUTPUT); 
 
-  /* Использую НЗ контакты кнопок */
+  digitalWrite(pinEnable, HIGH); // по умолчанию запрет работы
+
+  pinMode(pinPot, INPUT);   
+
   pinMode(pinBtnDown, INPUT_PULLUP);
   pinMode(pinBtnUp, INPUT_PULLUP);
   
 }   
 
 void loop() { 
-   /*Функция обработки нажатий. Подтяжка внутренним резистором к +5В.*/
+  bool flag = false; //работа
+  int val = analogRead(pinPot);
+  val = map(val, 0, 1023, 0, 20);
+  val = constrain(val, 0, 20);
+
+  if (val >= 2){
+    flag = true;    
+    digitalWrite(pinEnable, LOW); // Разрешаем работу двигателя.
+  }
+
+  if (flag){
+    digitalWrite(pinDir, 1); // напраление вращения
+  }
+}
+void buttons(){
+
+     /*Функция обработки нажатий. Подтяжка внутренним резистором к +5В.*/
+
   bool btnDownHold = false;
   bool btnUpHold = false;
 
@@ -56,6 +74,4 @@ void loop() {
     digitalWrite(13, 0);
     Serial.print("btnUp LONGCLICK! "); Serial.println(timePressBtnUp);
   }
-
-
 }
