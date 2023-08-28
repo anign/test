@@ -16,6 +16,8 @@
 #define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 1250 // Задержка между шагами для 0.25 об/с
 
+uint32_t timer;
+
 void setup(){   
 
   Serial.begin(9600);
@@ -46,7 +48,6 @@ void buttons(){
   bool btnDown = !digitalRead(pinBtnDown); // меньше
   bool btnUp = !digitalRead(pinBtnUp); // больше
 
-  uint16_t timer;
 
   if (btnUp && !flag && millis() - timer > 3000) {
     flag = true;
@@ -61,7 +62,6 @@ void buttons(){
 }
 
 void ramp(){
-
 }
 
 uint16_t potentio(){
@@ -100,8 +100,6 @@ void motor(uint16_t val){
 
 void info(uint16_t val){
   /* Вывод информации в последовательный порт*/
-
-  uint16_t timer;
 
   if (millis() - timer > 5000){
     timer = millis();
