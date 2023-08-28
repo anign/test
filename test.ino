@@ -33,7 +33,6 @@ void setup(){
 
 void loop() { 
 
-
   buttons();
 
   // motor(potentio());
@@ -43,22 +42,18 @@ void loop() {
 
 void buttons(){
 
-  static bool flag = false;
-
   bool btnDown = !digitalRead(pinBtnDown); // меньше
   bool btnUp = !digitalRead(pinBtnUp); // больше
 
-
-  if (btnUp && !flag && millis() - timer > 3000) {
-    flag = true;
+  if (btnDown && millis() - timer > 2000) {
     timer = millis();
-    Serial.println("Longlick!");
-  }
-  else {
-    flag = false;
-    timer = millis();
+    Serial.println("btnDown Longсlick!");
   }
 
+  else if (btnUp && millis() - timer > 2000) {
+    timer = millis();
+    Serial.println("btnUp Longсlick!");
+  }
 }
 
 void ramp(){
