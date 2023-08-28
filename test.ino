@@ -15,7 +15,7 @@
 #define delayMinSpeed 1250 // Задержка между шагами для 0.25 об/с
 
 void setup(){   
-  
+
   Serial.begin(9600);
   pinMode(pinStep, OUTPUT);                    
   pinMode(pinDir, OUTPUT);  
@@ -27,6 +27,7 @@ void setup(){
 void loop() { 
 
   motor(potentio());
+  info(potentio());
 
 }
 
@@ -44,7 +45,7 @@ uint16_t potentio(){
   }
   else {
     Serial.println("Для начала работы поверните ручку резистора!");
-    delay(1000);
+    delay(100);
   }
 }
 
@@ -62,4 +63,17 @@ void motor(uint16_t val){
     digitalWrite(pinEnable, HIGH); // запрещаем работу по ТЗ
   }
   
+}
+
+void info(uint16_t val){
+  /* Вывод информации в последовательный порт*/
+
+  uint16_t timer;
+
+  if (millis() - timer > 5000){
+    Serial.print("Текущая скорость - ");
+    Serial.print(val/75);
+    Serial.println(" об/мин");
+    timer = millis();
+  }
 }
