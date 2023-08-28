@@ -8,9 +8,11 @@
 #define pinBtnUp 3 // кнопка "больше"
 #define btnTimer 2000 // таймаут удержания кнопки
 
-#define steps 1000 // Кол-во шагов двигателя  
+#define steps 200 // Кол-во шагов на оборот двигателя  
 #define rampStep 0,1 // шаг изменения рампы
 
+#define delayPerRevolution 150 // Задержка между шагами для 2 об/с
+#define delayMinSpeed 1250 // Задержка между шагами для 0.25 об/с
 
 void setup(){   
   pinMode(13, OUTPUT); // для отладки
@@ -18,60 +20,39 @@ void setup(){
   Serial.begin(9600);
   pinMode(pinStep, OUTPUT);                    
   pinMode(pinDir, OUTPUT);  
-  pinMode(pinEnable, OUTPUT); 
-
-  digitalWrite(pinEnable, HIGH); // по умолчанию запрет работы
-
+  pinMode(pinEnable, OUTPUT);    
   pinMode(pinPot, INPUT);   
 
-  pinMode(pinBtnDown, INPUT_PULLUP);
-  pinMode(pinBtnUp, INPUT_PULLUP);
-  
 }   
 
 void loop() { 
-  bool flag = false; //работа
-  int val = analogRead(pinPot);
-  val = map(val, 0, 1023, 0, 20);
-  val = constrain(val, 0, 20);
 
-  if (val >= 2){
-    flag = true;    
-    digitalWrite(pinEnable, LOW); // Разрешаем работу двигателя.
-  }
+  motor(potentio());
 
-  if (flag){
-    digitalWrite(pinDir, 1); // напраление вращения
-  }
 }
-void buttons(){
 
-     /*Функция обработки нажатий. Подтяжка внутренним резистором к +5В.*/
+uint16_t potentio(){
+  /*Функция чтения и обработки сигнала с потенциометра */  
 
-  bool btnDownHold = false;
-  bool btnUpHold = false;
+  int val = analogRead(pinPot);
+  val = map(val, 0, 1023, delayMinSpeed, delayPerRevolution);
+  val = constrain(val, delayPerRevolution, delayMinSpeed);
 
-  uint16_t timeLongClick; // время удержания кнопки
-  uint16_t timePressBtnDown;    // момент нажатия кнопки "меньше"
-  uint16_t timePressBtnUp;    // момент нажатия кнопки "меньше"
-  
-  bool btnDown = !digitalRead(pinBtnDown); // кнопка "меньше"
-  bool btnUp = !digitalRead(pinBtnUp); // кнопка "больше"
-  
+  return val;
+}
 
-  if (btnDown && !btnDownHold &&  millis() - timePressBtnDown > btnTimer){ 
-    btnDownHold = true;
-    timePressBtnDown = millis(); 
-    digitalWrite(13, 1);
-    Serial.print("btnDown LONGCLICK! "); Serial.println(timePressBtnDown);
+void motor(uint16_t val){
+    /*Функция управления мотором*/
+
+    if (val > 10 && val <= delayMinSpeed){ // от 10 едениц для исключения "дребезга"
+    digitalWrite(pinEnable, LOW);
+    digitalWrite(pinDir, 1); // направление неизменно
+    digitalWrite(pinStep, HIGH);
+    delay(val);
+    digitalWrite(pinStep, LOW);
   }
-
-
-  
-  if (btnUp && !btnUpHold &&  millis() - timePressBtnUp > btnTimer){ 
-    btnUpHold = true;
-    timePressBtnUp = millis(); 
-    digitalWrite(13, 0);
-    Serial.print("btnUp LONGCLICK! "); Serial.println(timePressBtnUp);
+  else {
+    digitalWrite(pinEnable, HIGH); // запрещаем работу по ТЗ
   }
+  
 }
