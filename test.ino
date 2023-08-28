@@ -35,8 +35,8 @@ void loop() {
 
   buttons();
 
-  // motor(potentio());
-  // info(potentio());
+  motor(potentio());
+  info(potentio());
 
 }
 
@@ -62,18 +62,16 @@ void ramp(){
 uint16_t potentio(){
   /*Функция чтения и обработки сигнала с потенциометра */ 
 
-  bool flag = false; // флаг работы
-
   int val = analogRead(pinPot);
 
-  if (val > 0){
+  if (val > 10){
     val = map(val, 0, 1023, delayMinSpeed, delayMaxSpeed);
     val = constrain(val, delayMaxSpeed, delayMinSpeed);
     return val;
   }
   else {
     Serial.println("Для начала работы поверните ручку резистора!");
-    delay(100);
+    delay(2000);
   }
 }
 
@@ -93,15 +91,14 @@ void motor(uint16_t val){
   
 }
 
-void info(uint16_t val){
+void info(float val){
   /* Вывод информации в последовательный порт*/
 
   if (millis() - timer > 5000){
     timer = millis();
     Serial.print("Текущая скорость - ");
-    Serial.print(val/75);
+    Serial.print(60/(val/1000)/steps);
     Serial.println(" об/мин");
-    
   }
   
 }
