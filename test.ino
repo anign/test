@@ -11,7 +11,7 @@
 #define steps 200 // Кол-во шагов на оборот двигателя  
 #define rampStep 0,1 // шаг изменения рампы
 
-#define delayPerRevolution 150 // Задержка между шагами для 2 об/с
+#define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 1250 // Задержка между шагами для 0.25 об/с
 
 void setup(){   
