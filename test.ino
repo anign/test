@@ -6,10 +6,12 @@
 
 #define pinBtnDown 2 // кнопка "меньше"
 #define pinBtnUp 3 // кнопка "больше"
-#define btnTimer 2000 // таймаут удержания кнопки
+#define btnTimer 3000 // таймаут удержания кнопки
 
 #define steps 200 // Кол-во шагов на оборот двигателя  
 #define rampStep 0,1 // шаг изменения рампы
+#define minRamp 0,1 // 0.1 секунда
+#define maxRamp 2 // 2 секнуды
 
 #define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 1250 // Задержка между шагами для 0.25 об/с
@@ -22,12 +24,43 @@ void setup(){
   pinMode(pinEnable, OUTPUT);    
   pinMode(pinPot, INPUT);   
 
+  pinMode(pinBtnDown, INPUT_PULLUP);
+  pinMode(pinBtnUp, INPUT_PULLUP);
+
 }   
 
 void loop() { 
 
-  motor(potentio());
-  info(potentio());
+
+  buttons();
+
+  // motor(potentio());
+  // info(potentio());
+
+}
+
+void buttons(){
+
+  static bool flag = false;
+
+  bool btnDown = !digitalRead(pinBtnDown); // меньше
+  bool btnUp = !digitalRead(pinBtnUp); // больше
+
+  uint16_t timer;
+
+  if (btnUp && !flag && millis() - timer > 3000) {
+    flag = true;
+    timer = millis();
+    Serial.println("Longlick!");
+  }
+  else {
+    flag = false;
+    timer = millis();
+  }
+
+}
+
+void ramp(){
 
 }
 
@@ -71,9 +104,11 @@ void info(uint16_t val){
   uint16_t timer;
 
   if (millis() - timer > 5000){
+    timer = millis();
     Serial.print("Текущая скорость - ");
     Serial.print(val/75);
     Serial.println(" об/мин");
-    timer = millis();
+    
   }
+  
 }
