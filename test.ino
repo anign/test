@@ -6,17 +6,19 @@
 
 #define pinBtnDown 2 // кнопка "меньше"
 #define pinBtnUp 3 // кнопка "больше"
-#define btnTimer 2000 // таймаут удержания кнопки
+#define btnTimer 1000 // таймаут удержания кнопки
 
 #define steps 200 // Кол-во шагов на оборот двигателя  
-#define rampStep 0,1 // шаг изменения рампы
-#define minRamp 0,1 // 0.1 секунда
+#define rampStep 0.1 // шаг изменения рампы
+#define minRamp 0.1 // 0.1 секунда
 #define maxRamp 2 // 2 секнуды
 
 #define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 2000 // Задержка между шагами для ~0.15 об/с
 
 uint32_t timer;
+
+float currentRamp = minRamp;
 
 void setup(){   
 
@@ -33,30 +35,43 @@ void setup(){
 
 void loop() { 
 
-  buttons();
+  ramp();
 
-  motor(potentio());
-  info(potentio());
+  //motor(potentio());
+  //info(potentio(), ramp());
 
 }
 
-void buttons(){
-  
+float ramp(){
+  /* Функция измения рампы */
+
   bool btnDown = !digitalRead(pinBtnDown); // меньше
   bool btnUp = !digitalRead(pinBtnUp); // больше
 
   if (btnDown && millis() - timer > btnTimer) {
     timer = millis();
-    Serial.println("btnDown Longсlick!");
+
+    if (currentRamp <= minRamp){
+      Serial.println("Рампа минимальна!");   
+    }
+    else if (currentRamp >= (minRamp + 0.1) && currentRamp < (maxRamp + 0.1)){
+      currentRamp -= rampStep;
+      Serial.println(currentRamp); 
+    }
   }
 
-  else if (btnUp && millis() - timer > btnTimer) {
+  if (btnUp && millis() - timer > btnTimer) {
     timer = millis();
-    Serial.println("btnUp Longсlick!");
+    if (currentRamp >= 2){
+       Serial.println("Максимальная рампа!");    
+    }
+    else if(currentRamp >= minRamp && currentRamp < 2){
+      currentRamp += rampStep;
+      Serial.println(currentRamp); 
+    }
   }
-}
-
-void ramp(){
+  Serial.println(currentRamp);
+  return currentRamp;
 }
 
 uint16_t potentio(){
@@ -83,7 +98,7 @@ void motor(uint16_t val){
   }
 }
 
-void info(float val){
+void info(float val, float ramp){
   /* Вывод информации в последовательный порт*/
 
   if (millis() - timer > 5000){
@@ -95,6 +110,9 @@ void info(float val){
       Serial.print("Текущая скорость - ");
       Serial.print(60/(val/1000)/steps);
       Serial.println(" об/мин");
+      Serial.print("Текущая рампа - ");
+      Serial.println(ramp);
+      
     }
   } 
 }
