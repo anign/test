@@ -35,15 +35,20 @@ void setup(){
 
 void loop() { 
 
-  ramp();
 
-  //motor(potentio());
-  //info(potentio(), ramp());
+  info(potentio(), ramp());
+  motor(potentio(), ramp());
+  
 
+  /* 
+  
+  Serial.println(ramp());
+  
+  */
 }
 
 float ramp(){
-  /* Функция измения рампы */
+  /* Функция изменения рампы */
 
   bool btnDown = !digitalRead(pinBtnDown); // меньше
   bool btnUp = !digitalRead(pinBtnUp); // больше
@@ -56,7 +61,8 @@ float ramp(){
     }
     else if (currentRamp >= (minRamp + 0.1) && currentRamp < (maxRamp + 0.1)){
       currentRamp -= rampStep;
-      Serial.println(currentRamp); 
+      Serial.print("Текущая рампа - ");
+      Serial.println(currentRamp);
     }
   }
 
@@ -67,10 +73,10 @@ float ramp(){
     }
     else if(currentRamp >= minRamp && currentRamp < 2){
       currentRamp += rampStep;
-      Serial.println(currentRamp); 
+      Serial.print("Текущая рампа - ");
+      Serial.println(currentRamp);
     }
   }
-  Serial.println(currentRamp);
   return currentRamp;
 }
 
@@ -83,10 +89,14 @@ uint16_t potentio(){
   return val;
 }
 
-void motor(uint16_t val){
+void motor(uint16_t val, float ramp){
     /*Функция управления мотором*/
-
-    if (val > 0 && val < delayMinSpeed){ 
+  /*
+  if (millis() - timer >= ramp){
+    timer = millis();
+  }
+  */
+  if (val > 0 && val < delayMinSpeed){ 
     digitalWrite(pinEnable, LOW);
     digitalWrite(pinDir, 1);
     digitalWrite(pinStep, HIGH);
