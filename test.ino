@@ -1,27 +1,61 @@
-#define PIN_STEP 9
-#define PIN_DIR 10
-#define PIN_ENA 11
+#define pinStep 9
+#define pinDir 10
+#define pinEna 11
 
-#define PIN_POTENTIO A1
-#define PIN_BUTTON_DOWN 2
-#define PIN_BUTTON_UP 3
+#define pinPotentio A1 // потенциометр
 
-#define STEPS 1000 // Кол-во шагов двигателя  
+#define pinBtnDown 2 // кнопка "меньше"
+#define pinBtnUp 3 // кнопка "больше"
+#define btnTimer 2000 // таймаут удержания кнопки
+
+#define steps 1000 // Кол-во шагов двигателя  
+#define rampStep 0,1 // шаг изменения рампы
+
+  // Флаги состояния кнопок
 
 void setup(){   
+  pinMode(13, OUTPUT); // для отладки
+  
   Serial.begin(9600);
-  pinMode(PIN_STEP, OUTPUT);                    
-  pinMode(PIN_DIR, OUTPUT);  
-  pinMode(PIN_ENA, OUTPUT);    
-  pinMode(PIN_POTENTIO, INPUT);   
-}  
+  pinMode(pinStep, OUTPUT);                    
+  pinMode(pinDir, OUTPUT);  
+  pinMode(pinEna, OUTPUT);    
+  pinMode(pinPotentio, INPUT);   
 
-void loop() {
-  digitalWrite(PIN_ENA, 0); // разрешить работу
-  digitalWrite(PIN_DIR, 0); // направление вращения
+  /* Использую НЗ контакты кнопок */
+  pinMode(pinBtnDown, INPUT_PULLUP);
+  pinMode(pinBtnUp, INPUT_PULLUP);
+  
+}   
 
-  digitalWrite(PIN_ENA, 1); // запретить работу
+void loop() { 
+   /*Функция обработки нажатий. Подтяжка внутренним резистором к +5В.*/
+  bool btnDownHold = false;
+  bool btnUpHold = false;
+
+  uint16_t timeLongClick; // время удержания кнопки
+  uint16_t timePressBtnDown;    // момент нажатия кнопки "меньше"
+  uint16_t timePressBtnUp;    // момент нажатия кнопки "меньше"
+  
+  bool btnDown = !digitalRead(pinBtnDown); // кнопка "меньше"
+  bool btnUp = !digitalRead(pinBtnUp); // кнопка "больше"
+  
+
+  if (btnDown && !btnDownHold &&  millis() - timePressBtnDown > btnTimer){ 
+    btnDownHold = true;
+    timePressBtnDown = millis(); 
+    digitalWrite(13, 1);
+    Serial.print("btnDown LONGCLICK! "); Serial.println(timePressBtnDown);
+  }
+
 
   
-  // Serial.println(SPEED, RAMP);
+  if (btnUp && !btnUpHold &&  millis() - timePressBtnUp > btnTimer){ 
+    btnUpHold = true;
+    timePressBtnUp = millis(); 
+    digitalWrite(13, 0);
+    Serial.print("btnUp LONGCLICK! "); Serial.println(timePressBtnUp);
+  }
+
+
 }
