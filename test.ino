@@ -6,20 +6,21 @@
 
 #define pinBtnDown 2 // кнопка "меньше"
 #define pinBtnUp 3 // кнопка "больше"
-#define btnTimer 1000 // таймаут удержания кнопки
+#define btnTimer 2000 // таймаут удержания кнопки
 
 #define steps 200 // Кол-во шагов на оборот двигателя  
-#define rampStep 0.3 // шаг изменения рампы
-#define minRamp 5 // 0.1 секунда
-#define maxRamp 10 // 2 секнуды
+#define rampStep 0.1 // шаг изменения рампы
+#define minRamp 0.1 // 0.1 секунда
+#define maxRamp 2// 2 секнуды
 #define rampSteps 10
 
-#define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
+#define delayMaxSpeed 15 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 1500 // Задержка между шагами для ~0.2 об/с
 
 uint32_t timer;
 
 float currentRamp = minRamp;
+
 
 void setup(){   
   Serial.begin(9600);
@@ -29,45 +30,29 @@ void setup(){
   pinMode(pinPot, INPUT);   
   pinMode(pinBtnDown, INPUT_PULLUP);
   pinMode(pinBtnUp, INPUT_PULLUP);
+}
 
-  
-}   
-
-uint16_t multi = potentio() * rampSteps;
+uint32_t pause = 1000 * ramp() / rampSteps;
+uint16_t k;
 
 void loop() { 
+  k = potentio() * rampSteps; 
 
-  //Serial.println(calcCoeff(potentio(), ramp()));
-  //x = calcCoeff(potentio(), ramp());
-
-  //Serial.println(x);
-  
-  motor(calcCoeff(potentio(), ramp()));
-  //info(potentio(), ramp());
-  //motor(potentio());
-
-  
-  
-}
-
-
-uint16_t calcCoeff(uint16_t val, float ramp){
-
-  for(float i = 0.1; i <= ramp; i += ramp / rampSteps){
-    uint16_t pause = 1000 * ramp / rampSteps;
-
+  for(float i = 0.1; i <= ramp(); i += ramp() / rampSteps){
     if(millis() - timer >= pause){
-      timer = millis(); 
-      if(multi >= val){
-        return multi;
-      }
-      else{
-        break;
-      }
-    multi -= val;
+      timer = millis();       
+        if (k >= potentio()){
+          Serial.println(k);
+        k -= potentio();
+      } 
     }
-  } 
+  }
+  
+  //info(potentio(), ramp());
+  //motor(potentio(), ramp());
+
 }
+
 
 float ramp(){
   /* Функция изменения рампы */
@@ -88,6 +73,7 @@ float ramp(){
     }
   }
 
+
   if (btnUp && millis() - timer > btnTimer) {
     timer = millis();
     if (currentRamp >= 2){
@@ -102,6 +88,7 @@ float ramp(){
   return currentRamp;
 }
 
+
 uint16_t potentio(){
   /*Функция чтения и обработки сигнала с потенциометра */ 
 
@@ -111,7 +98,8 @@ uint16_t potentio(){
   return val;
 }
 
-void motor(uint16_t val){
+
+void motor(uint16_t val, float ramp){
     /*Функция управления мотором*/
 
   if (val < 0){ 
@@ -121,12 +109,10 @@ void motor(uint16_t val){
   digitalWrite(pinEnable, LOW);
   digitalWrite(pinDir, 1);
   digitalWrite(pinStep, HIGH);
-  Serial.println(val);
-  delay(val);
+  delay(val); 
   digitalWrite(pinStep, LOW);
-
-
 }
+
 
 void info(float val, float ramp){
   /* Вывод информации в последовательный порт*/
@@ -141,8 +127,7 @@ void info(float val, float ramp){
       Serial.print(60/(val/1000)/steps);
       Serial.println(" об/мин");
       Serial.print("Текущая рампа - ");
-      Serial.println(ramp);
-      
+      Serial.println(ramp);  
     }
   } 
 }
