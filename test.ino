@@ -32,7 +32,7 @@ void setup(){
   pinMode(pinBtnUp, INPUT_PULLUP);
 }
 
-uint32_t pause = 1000 * ramp() / rampSteps;
+uint16_t pause = 1000 * ramp() / rampSteps;
 uint16_t k = potentio() * rampSteps;
 
 void loop() { 
