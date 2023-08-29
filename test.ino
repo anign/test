@@ -14,8 +14,8 @@
 #define maxRamp 10 // 2 секнуды
 #define rampSteps 10
 
-#define delayMaxSpeed 15 // Задержка между шагами для 2 об/с
-#define delayMinSpeed 20 // Задержка между шагами для ~0.15 об/с
+#define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
+#define delayMinSpeed 1500 // Задержка между шагами для ~0.2 об/с
 
 uint32_t timer;
 
@@ -33,30 +33,41 @@ void setup(){
   
 }   
 
-float multi = potentio() * rampSteps; 
+uint16_t multi = potentio() * rampSteps;
 
 void loop() { 
-  
-/*
-  for(float i = 0.1; i <= ramp(); i += ramp() / rampSteps){
-    delay(1000 * ramp() / rampSteps);
-    if (multi >= potentio()){  
-      Serial.println(multi);
-    }
-    multi -= potentio(); 
-  }
-  
-*/
 
+  //Serial.println(calcCoeff(potentio(), ramp()));
+  //x = calcCoeff(potentio(), ramp());
 
-  motor(potentio());
-  info(potentio(), ramp());
+  //Serial.println(x);
   
+  motor(calcCoeff(potentio(), ramp()));
+  //info(potentio(), ramp());
+  //motor(potentio());
 
   
   
 }
 
+
+uint16_t calcCoeff(uint16_t val, float ramp){
+
+  for(float i = 0.1; i <= ramp; i += ramp / rampSteps){
+    uint16_t pause = 1000 * ramp / rampSteps;
+
+    if(millis() - timer >= pause){
+      timer = millis(); 
+      if(multi >= val){
+        return multi;
+      }
+      else{
+        break;
+      }
+    multi -= val;
+    }
+  } 
+}
 
 float ramp(){
   /* Функция изменения рампы */
@@ -103,16 +114,18 @@ uint16_t potentio(){
 void motor(uint16_t val){
     /*Функция управления мотором*/
 
-  if (val > 0 && val < delayMinSpeed){ 
-    digitalWrite(pinEnable, LOW);
-    digitalWrite(pinDir, 1);
-    digitalWrite(pinStep, HIGH);
-    delay(val);
-    digitalWrite(pinStep, LOW);
-  }
-  else {
+  if (val < 0){ 
     digitalWrite(pinEnable, HIGH); // запрещаем работу по ТЗ
   }
+
+  digitalWrite(pinEnable, LOW);
+  digitalWrite(pinDir, 1);
+  digitalWrite(pinStep, HIGH);
+  Serial.println(val);
+  delay(val);
+  digitalWrite(pinStep, LOW);
+
+
 }
 
 void info(float val, float ramp){
