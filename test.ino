@@ -6,7 +6,7 @@
 
 #define pinBtnDown 2 // кнопка "меньше"
 #define pinBtnUp 3 // кнопка "больше"
-#define btnTimer 2000 // таймаут удержания кнопки
+#define btnTimer 1000 // таймаут удержания кнопки
 
 #define steps 200 // Кол-во шагов на оборот двигателя  
 #define rampStep 0.1 // шаг изменения рампы
@@ -14,7 +14,7 @@
 #define maxRamp 2// 2 секнуды
 #define rampSteps 10
 
-#define delayMaxSpeed 15 // Задержка между шагами для 2 об/с
+#define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
 #define delayMinSpeed 1500 // Задержка между шагами для ~0.2 об/с
 
 uint32_t timer;
@@ -33,26 +33,37 @@ void setup(){
 }
 
 uint32_t pause = 1000 * ramp() / rampSteps;
-uint16_t k;
+uint16_t k = potentio() * rampSteps;
 
 void loop() { 
-  k = potentio() * rampSteps; 
+
+  mainFunc();
+
+/*
+  Алгоритм плавного разгона: не побежден :'(
+
+  uint16_t tmr;
 
   for(float i = 0.1; i <= ramp(); i += ramp() / rampSteps){
-    if(millis() - timer >= pause){
-      timer = millis();       
+    if(millis() - tmr >= pause){
+      tmr = millis();       
         if (k >= potentio()){
+          // info(k, ramp());
+          // motor(k, ramp());
           Serial.println(k);
         k -= potentio();
       } 
     }
   }
-  
-  //info(potentio(), ramp());
-  //motor(potentio(), ramp());
+*/
 
 }
 
+
+void mainFunc(){
+  info(potentio(), ramp());
+  motor(potentio(), ramp());
+}
 
 float ramp(){
   /* Функция изменения рампы */
