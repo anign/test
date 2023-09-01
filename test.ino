@@ -42,7 +42,7 @@ void loop() {
 /*
   Алгоритм плавного разгона: не побежден :'(
 
-  uint16_t tmr;
+  uint32_t tmr;
 
   for(float i = 0.1; i <= ramp(); i += ramp() / rampSteps){
     if(millis() - tmr >= pause){
