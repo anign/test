@@ -110,7 +110,7 @@ uint16_t potentio(){
 }
 
 
-void motor(uint16_t val, float ramp){
+void motor(float val, float ramp){
     /*Функция управления мотором*/
 
   if (val < 0){ 
