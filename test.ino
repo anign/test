@@ -125,7 +125,7 @@ void motor(float val, float ramp){
 }
 
 
-void info(uint16_t val, float ramp){
+void info(float val, float ramp){
   /* Вывод информации в последовательный порт*/
 
   if (millis() - timer > 5000){
