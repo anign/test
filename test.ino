@@ -103,7 +103,7 @@ float ramp(){
 uint16_t potentio(){
   /*Функция чтения и обработки сигнала с потенциометра */ 
 
-  int val = analogRead(pinPot);
+  uint16_t val = analogRead(pinPot);
   val = map(val, 0, 1023, delayMinSpeed, delayMaxSpeed);
   val = constrain(val, delayMaxSpeed, delayMinSpeed);
   return val;
@@ -125,7 +125,7 @@ void motor(uint16_t val, float ramp){
 }
 
 
-void info(float val, float ramp){
+void info(uint16_t val, float ramp){
   /* Вывод информации в последовательный порт*/
 
   if (millis() - timer > 5000){
