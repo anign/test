@@ -135,7 +135,7 @@ void info(float val, float ramp){
     }
     else{
       Serial.print("Текущая скорость - ");
-      Serial.print(60/(val/1000)/steps);
+      Serial.print(60/(val/1000)/steps); // 60 секунд
       Serial.println(" об/мин");
       Serial.print("Текущая рампа - ");
       Serial.println(ramp);  
