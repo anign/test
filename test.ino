@@ -116,12 +116,13 @@ void motor(float val, float ramp){
   if (val < 0){ 
     digitalWrite(pinEnable, HIGH); // запрещаем работу по ТЗ
   }
-
   digitalWrite(pinEnable, LOW);
   digitalWrite(pinDir, 1);
   digitalWrite(pinStep, HIGH);
-  delay(val); 
-  digitalWrite(pinStep, LOW);
+  if (millis() - timer >= val){
+    timer = millis();
+    digitalWrite(pinStep, LOW);
+  } 
 }
 
 
