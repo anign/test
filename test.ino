@@ -11,18 +11,20 @@
 #define steps 200 // Кол-во шагов на оборот двигателя  
 #define rampStep 0.1 // шаг изменения рампы
 #define minRamp 0.1 // 0.1 секунда
-#define maxRamp 2// 2 секнуды
+#define maxRamp 2// 2 секунуды
 #define rampSteps 10
 
-#define delayMaxSpeed 150 // Задержка между шагами для 2 об/с
-#define delayMinSpeed 1500 // Задержка между шагами для ~0.2 об/с
+uint16_t delayMinSpeed = 1000 / (steps * 0.1); // 0.1 rpm
+uint16_t delayMaxSpeed = 1000 / (steps * 2); // 2 rpm
+
 
 uint32_t timer;
+uint32_t tmr;
 
 float currentRamp = minRamp;
 
-
 void setup(){   
+ 
   Serial.begin(9600);
   pinMode(pinStep, OUTPUT);                    
   pinMode(pinDir, OUTPUT);  
@@ -36,31 +38,13 @@ uint16_t pause = 1000 * ramp() / rampSteps;
 uint16_t k = potentio() * rampSteps;
 
 void loop() { 
-
+  
   mainFunc();
-
-/*
-  Алгоритм плавного разгона: не побежден :'(
-
-  uint32_t tmr;
-
-  for(float i = 0.1; i <= ramp(); i += ramp() / rampSteps){
-    if(millis() - tmr >= pause){
-      tmr = millis();       
-        if (k >= potentio()){
-          // info(k, ramp());
-          // motor(k, ramp());
-          Serial.println(k);
-        k -= potentio();
-      } 
-    }
-  }
-*/
 
 }
 
-
 void mainFunc(){
+
   info(potentio(), ramp());
   motor(potentio(), ramp());
 }
@@ -103,10 +87,9 @@ float ramp(){
 uint16_t potentio(){
   /*Функция чтения и обработки сигнала с потенциометра */ 
 
-  uint16_t val = analogRead(pinPot);
-  val = map(val, 0, 1023, delayMinSpeed, delayMaxSpeed);
-  val = constrain(val, delayMaxSpeed, delayMinSpeed);
-  return val;
+  uint16_t resistor = analogRead(pinPot);
+  uint16_t motorSpeed = map(resistor, 0, 1023, delayMinSpeed, delayMaxSpeed);
+  return motorSpeed;
 }
 
 
@@ -116,30 +99,26 @@ void motor(float val, float ramp){
   if (val < 0){ 
     digitalWrite(pinEnable, HIGH); // запрещаем работу по ТЗ
   }
+
   digitalWrite(pinEnable, LOW);
   digitalWrite(pinDir, 1);
   digitalWrite(pinStep, HIGH);
+
   if (millis() - timer >= val){
     timer = millis();
     digitalWrite(pinStep, LOW);
   } 
 }
 
-
 void info(float val, float ramp){
   /* Вывод информации в последовательный порт*/
-
-  if (millis() - timer > 5000){
-    timer = millis();
-    if (val >= delayMinSpeed){
-      Serial.println("Для начала работы поверните ручку резистора!");
-    }
-    else{
-      Serial.print("Текущая скорость - ");
-      Serial.print(60/(val/1000)/steps); // 60 секунд
-      Serial.println(" об/мин");
-      Serial.print("Текущая рампа - ");
-      Serial.println(ramp);  
-    }
+  
+  if (millis() - tmr > 3000){
+    tmr = millis();
+    Serial.print("Текущая скорость - ");
+    Serial.print(60/(val/1000)/steps); // 60 секунд
+    Serial.println(" об/мин");
+    Serial.print("Текущая рампа - ");
+    Serial.println(ramp);  
   } 
 }
